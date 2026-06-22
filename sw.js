@@ -1,4 +1,4 @@
-var CACHE = 'mis-gastos-v2';
+var CACHE = 'mis-gastos-v9';
 var FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (e) {
@@ -24,16 +24,16 @@ self.addEventListener('activate', function (e) {
 self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET') return;
   var url = new URL(e.request.url);
-  if (url.hostname === 'api.anthropic.com' || url.hostname.indexOf('googleapis.com') > -1 || url.hostname.indexOf('gstatic.com') > -1) return;
+  if (url.hostname === 'api.anthropic.com' || url.hostname.indexOf('googleapis.com') > -1 || url.hostname.indexOf('gstatic.com') > -1 || url.hostname.indexOf('supabase.co') > -1 || url.hostname.indexOf('jsdelivr.net') > -1) return;
   e.respondWith(
-    caches.match(e.request).then(function (cached) {
-      return cached || fetch(e.request).then(function (res) {
-        if (res && res.status === 200 && res.type === 'basic') {
-          var clone = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(e.request, clone); });
-        }
-        return res;
-      }).catch(function () { return cached; });
+    fetch(e.request).then(function (res) {
+      if (res && res.status === 200 && res.type === 'basic') {
+        var clone = res.clone();
+        caches.open(CACHE).then(function (c) { c.put(e.request, clone); });
+      }
+      return res;
+    }).catch(function () {
+      return caches.match(e.request);
     })
   );
 });
